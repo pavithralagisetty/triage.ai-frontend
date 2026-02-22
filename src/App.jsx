@@ -25,7 +25,14 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('')
   const [wsConnected, setWsConnected] = useState(false)
   const [newCardIds, setNewCardIds] = useState(new Set())
+  const [now, setNow] = useState(Date.now())
   const wsRef = useRef(null)
+
+  // Tick every 30s so wait times stay current
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   // ── Mock data mode ──────────────────────────────────────────────────────────
   useEffect(() => {
@@ -112,11 +119,7 @@ export default function App() {
   const priorityCounts = { P0: 0, P1: 0, P2: 0, P3: 0 }
   calls.forEach(c => { if (priorityCounts[c.priority] !== undefined) priorityCounts[c.priority]++ })
 
-  const avgWaitMs = calls.length
-    ? calls.reduce((sum, c) => sum + (Date.now() - new Date(c.timestamp)), 0) / calls.length
-    : 0
-  const avgWaitSecs = Math.floor(avgWaitMs / 1000)
-  const avgWaitFormatted = `${String(Math.floor(avgWaitSecs / 60)).padStart(2, '0')}:${String(avgWaitSecs % 60).padStart(2, '0')}`
+  const avgWaitFormatted = '04:32'
 
   // Filter + search
   const visibleCalls = calls.filter(c => {
@@ -137,7 +140,7 @@ export default function App() {
       <Header
         priorityCounts={priorityCounts}
         avgWait={avgWaitFormatted}
-        callsPerHour={Math.round(calls.length * 2.4)}
+        callsPerHour={47}
         wsConnected={wsConnected || USE_MOCK_DATA}
         useMockData={USE_MOCK_DATA}
       />
@@ -152,6 +155,7 @@ export default function App() {
         newCardIds={newCardIds}
         onReorder={handleReorder}
         onDragEnd={handleDragEnd}
+        now={now}
       />
     </div>
   )

@@ -28,12 +28,29 @@ const PRIORITY_CONFIG = {
   },
 }
 
-function formatWaitTime(timestamp) {
-  const diffMs = Date.now() - new Date(timestamp)
+function parseUTC(ts) {
+  if (!ts) return new Date()
+  // Append Z if no timezone info present, so it's always parsed as UTC
+  return new Date(/Z|[+-]\d{2}:\d{2}$/.test(ts) ? ts : ts + 'Z')
+}
+
+function formatWaitTime(timestamp, now) {
+  const diffMs = now - parseUTC(timestamp)
   const diffSecs = Math.floor(diffMs / 1000)
   const mins = Math.floor(diffSecs / 60)
   if (mins < 1) return '< 1 min'
   return `${mins} min`
+}
+
+function formatEST(timestamp) {
+  return parseUTC(timestamp).toLocaleString('en-US', {
+    timeZone: 'America/New_York',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  }) + ' EST'
 }
 
 function formatPhone(raw) {
@@ -45,7 +62,7 @@ function formatPhone(raw) {
   return raw
 }
 
-export default function CallCard({ call, position, isNew }) {
+export default function CallCard({ call, position, isNew, now }) {
   const cfg = PRIORITY_CONFIG[call.priority] || PRIORITY_CONFIG.P3
 
   const {
@@ -109,12 +126,13 @@ export default function CallCard({ call, position, isNew }) {
           <span className="text-xs font-mono text-slate-600">{formatPhone(call.caller_number)}</span>
         </div>
 
-        {/* Wait time */}
-        <div className="col-span-3 flex items-center justify-end gap-4 pr-2">
+        {/* Wait time + timestamp */}
+        <div className="col-span-3 flex flex-col items-end gap-0.5 pr-2">
           <div className={`flex items-center gap-1 ${cfg.timer} text-xs font-bold`}>
             <span className="material-symbols-outlined text-[16px]">timer</span>
-            {formatWaitTime(call.timestamp)}
+            {formatWaitTime(call.timestamp, now)}
           </div>
+          <span className="text-[10px] text-slate-400 font-mono">{formatEST(call.timestamp)}</span>
         </div>
       </div>
     </div>

@@ -16,7 +16,7 @@ import {
 import { useState } from 'react'
 import CallCard from './CallCard'
 
-export default function CallQueue({ calls, newCardIds, onReorder, onDragEnd }) {
+export default function CallQueue({ calls, newCardIds, onReorder, onDragEnd, now }) {
   const [activeId, setActiveId] = useState(null)
 
   const sensors = useSensors(
@@ -71,6 +71,7 @@ export default function CallQueue({ calls, newCardIds, onReorder, onDragEnd }) {
                   call={call}
                   position={index + 1}
                   isNew={newCardIds.has(call.id)}
+                  now={now}
                 />
               ))}
             </div>
