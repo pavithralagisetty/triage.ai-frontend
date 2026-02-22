@@ -90,6 +90,7 @@ export default function CallCard({ call, position, isNew, now }) {
         rounded hover:bg-slate-50 transition-colors p-3 shadow-soft cursor-pointer relative overflow-hidden
         ${isNew ? 'card-enter' : ''}
         ${isDragging ? 'shadow-lg ring-2 ring-blue-300' : ''}
+        ${call.priority === 'P0' ? 'p0-glow' : ''}
       `}
     >
       {/* Drag handle + position */}

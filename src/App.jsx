@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Header from './components/Header'
 import FilterBar from './components/FilterBar'
 import CallQueue from './components/CallQueue'
+import Toast from './components/Toast'
 import { MOCK_CALLS, getNextMockCall } from './mockData'
 
 // ── Toggle this flag ──────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ export default function App() {
   const [wsConnected, setWsConnected] = useState(false)
   const [newCardIds, setNewCardIds] = useState(new Set())
   const [now, setNow] = useState(Date.now())
+  const [toast, setToast] = useState(null)
   const wsRef = useRef(null)
 
   // Tick every 30s so wait times stay current
@@ -43,6 +45,7 @@ export default function App() {
       const newCall = getNextMockCall()
       setCalls(prev => sortCalls([...prev, newCall]))
       setNewCardIds(prev => new Set([...prev, newCall.id]))
+      setToast({ priority: newCall.priority, issue_type: newCall.issue_type })
       setTimeout(() => {
         setNewCardIds(prev => {
           const next = new Set(prev)
@@ -73,6 +76,7 @@ export default function App() {
           const newCall = msg.data
           setCalls(prev => prev.find(c => c.id === newCall.id) ? prev : sortCalls([...prev, newCall]))
           setNewCardIds(prev => new Set([...prev, newCall.id]))
+          setToast({ priority: newCall.priority, issue_type: newCall.issue_type })
           setTimeout(() => {
             setNewCardIds(prev => {
               const next = new Set(prev)
@@ -157,6 +161,7 @@ export default function App() {
         onDragEnd={handleDragEnd}
         now={now}
       />
+      <Toast toast={toast} onDismiss={() => setToast(null)} />
     </div>
   )
 }
